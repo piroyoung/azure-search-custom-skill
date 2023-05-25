@@ -1,6 +1,13 @@
 package skill
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"errors"
+)
+
+var (
+	ErrParse = errors.New("parse error")
+)
 
 type Skill[S, T any] struct {
 	mutation func(S) (T, error)
@@ -35,11 +42,11 @@ func (s *Skill[S, T]) Apply(body Body[S]) Body[T] {
 
 func (s *Skill[S, T]) Flatten() func([]byte) ([]byte, error) {
 	return func(body []byte) ([]byte, error) {
-		var b *Body[S]
-		if err := json.Unmarshal(body, b); err != nil {
-			return []byte{}, err
+		var b Body[S]
+		if err := json.Unmarshal(body, &b); err != nil {
+			return []byte{}, ErrParse
 		}
-		result := s.Apply(*b)
+		result := s.Apply(b)
 		if response, err := json.Marshal(result); err != nil {
 			return []byte{}, err
 		} else {
