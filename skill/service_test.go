@@ -1,7 +1,6 @@
 package skill
 
 import (
-	"github.com/piroyoung/azure-search-custom-skill/skill"
 	"reflect"
 	"testing"
 )
@@ -13,21 +12,21 @@ func TestNewWordCountSkill(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *skill.WordCountSkill
+		want *WordCountSkill
 	}{
 		{
 			name: "TestNewWordCountSkill",
 			args: args{
 				stopWords: []string{"a", "b", "c"},
 			},
-			want: &skill.WordCountSkill{
+			want: &WordCountSkill{
 				stopWords: []string{"a", "b", "c"},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := skill.NewWordCountSkill(tt.args.stopWords); !reflect.DeepEqual(got, tt.want) {
+			if got := NewWordCountSkill(tt.args.stopWords); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewWordCountSkill() = %v, want %v", got, tt.want)
 			}
 		})
@@ -39,13 +38,13 @@ func TestWordCountSkill_Apply(t *testing.T) {
 		stopWords []string
 	}
 	type args struct {
-		body skill.Body[map[string]string]
+		body Body[map[string]string]
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   skill.Body[map[string]map[string]int]
+		want   Body[map[string]map[string]int]
 	}{
 		{
 			name: "TestWordCountSkill_Apply",
@@ -53,8 +52,8 @@ func TestWordCountSkill_Apply(t *testing.T) {
 				stopWords: []string{"a", "b", "c"},
 			},
 			args: args{
-				body: skill.Body[map[string]string]{
-					Values: []skill.Record[map[string]string]{
+				body: Body[map[string]string]{
+					Values: []Record[map[string]string]{
 						{
 							RecordID: "1",
 							Data:     map[string]string{"content": "a b c d e f"},
@@ -62,8 +61,8 @@ func TestWordCountSkill_Apply(t *testing.T) {
 					},
 				},
 			},
-			want: skill.Body[map[string]map[string]int]{
-				Values: []skill.Record[map[string]map[string]int]{
+			want: Body[map[string]map[string]int]{
+				Values: []Record[map[string]map[string]int]{
 					{
 						RecordID: "1",
 						Data: map[string]map[string]int{
@@ -80,7 +79,7 @@ func TestWordCountSkill_Apply(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			w := skill.WordCountSkill{
+			w := WordCountSkill{
 				stopWords: tt.fields.stopWords,
 			}
 			if got := w.Apply(tt.args.body); !reflect.DeepEqual(got, tt.want) {
@@ -122,7 +121,7 @@ func TestWordCountSkill_countWords(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			w := skill.WordCountSkill{
+			w := WordCountSkill{
 				stopWords: tt.fields.stopWords,
 			}
 			if got := w.countWords(tt.args.data); !reflect.DeepEqual(got, tt.want) {
@@ -158,7 +157,7 @@ func TestWordCountSkill_isStopWord(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			w := skill.WordCountSkill{
+			w := WordCountSkill{
 				stopWords: tt.fields.stopWords,
 			}
 			if got := w.isStopWord(tt.args.word); got != tt.want {
