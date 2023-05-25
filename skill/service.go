@@ -6,6 +6,31 @@ type Skill[S, T any] interface {
 	Apply(Body[S]) Body[T]
 }
 
+type GeneralSkill[S, T any] struct {
+	mutation func(S) (T, error)
+}
+
+func NewGeneralSkill[S, T any](mutation func(S) (T, error)) *GeneralSkill[S, T] {
+	return &GeneralSkill[S, T]{mutation: mutation}
+}
+
+func (g GeneralSkill[S, T]) Apply(body Body[S]) Body[T] {
+	result := make([]Record[T], len(body.Values))
+	for i, record := range body.Values {
+		result[i].RecordID = record.RecordID
+		result[i].Data = make(map[string]T)
+		for k, v := range record.Data {
+			value, err := g.mutation(v)
+			if err != nil {
+				result[i].Errors = append(result[i].Errors, NewMessage(err.Error()))
+			} else {
+				result[i].Data[k] = value
+			}
+		}
+	}
+	return Body[T]{Values: result}
+}
+
 type WordCountSkill struct {
 	stopWords []string
 }
