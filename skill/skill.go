@@ -1,5 +1,7 @@
 package skill
 
+import "encoding/json"
+
 type Skill[S, T any] struct {
 	mutation func(S) (T, error)
 }
@@ -14,13 +16,13 @@ func NewSkillNoErr[S, T any](mutation func(S) T) *Skill[S, T] {
 	}}
 }
 
-func (g Skill[S, T]) Apply(body Body[S]) Body[T] {
+func (s *Skill[S, T]) Apply(body Body[S]) Body[T] {
 	result := make([]Record[T], len(body.Values))
 	for i, record := range body.Values {
 		result[i].RecordID = record.RecordID
 		result[i].Data = make(map[string]T)
 		for k, v := range record.Data {
-			value, err := g.mutation(v)
+			value, err := s.mutation(v)
 			if err != nil {
 				result[i].Errors = append(result[i].Errors, NewMessage(err.Error()))
 			} else {
@@ -29,4 +31,19 @@ func (g Skill[S, T]) Apply(body Body[S]) Body[T] {
 		}
 	}
 	return Body[T]{Values: result}
+}
+
+func (s *Skill[S, T]) Flatten() func([]byte) ([]byte, error) {
+	return func(body []byte) ([]byte, error) {
+		var b *Body[S]
+		if err := json.Unmarshal(body, b); err != nil {
+			return []byte{}, err
+		}
+		result := s.Apply(*b)
+		if response, err := json.Marshal(result); err != nil {
+			return []byte{}, err
+		} else {
+			return response, nil
+		}
+	}
 }
