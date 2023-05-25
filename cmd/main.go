@@ -8,9 +8,7 @@ import (
 )
 
 func main() {
-	lowerSkill := skill.NewSkill(func(s string) (string, error) {
-		return strings.ToLower(s), nil
-	})
+	lowerSkill := skill.NewSkillNoErr[string, string](strings.ToLower)
 
 	r := gin.Default()
 	r.POST("/v1/skills/lower", func(c *gin.Context) {
