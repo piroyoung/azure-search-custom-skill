@@ -12,7 +12,7 @@ func main() {
 
 	r := gin.Default()
 	r.POST("/v1/skills/count", func(c *gin.Context) {
-		var body skill.Body[map[string]string]
+		var body skill.Body[string]
 		if err := c.ShouldBindJSON(&body); err != nil {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return

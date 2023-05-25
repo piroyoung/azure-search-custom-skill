@@ -38,13 +38,13 @@ func TestWordCountSkill_Apply(t *testing.T) {
 		stopWords []string
 	}
 	type args struct {
-		body Body[map[string]string]
+		body Body[string]
 	}
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
-		want   Body[map[string]map[string]int]
+		want   Body[map[string]int]
 	}{
 		{
 			name: "TestWordCountSkill_Apply",
@@ -52,8 +52,8 @@ func TestWordCountSkill_Apply(t *testing.T) {
 				stopWords: []string{"a", "b", "c"},
 			},
 			args: args{
-				body: Body[map[string]string]{
-					Values: []Record[map[string]string]{
+				body: Body[string]{
+					Values: []Record[string]{
 						{
 							RecordID: "1",
 							Data:     map[string]string{"content": "a b c d e f"},
@@ -61,8 +61,8 @@ func TestWordCountSkill_Apply(t *testing.T) {
 					},
 				},
 			},
-			want: Body[map[string]map[string]int]{
-				Values: []Record[map[string]map[string]int]{
+			want: Body[map[string]int]{
+				Values: []Record[map[string]int]{
 					{
 						RecordID: "1",
 						Data: map[string]map[string]int{

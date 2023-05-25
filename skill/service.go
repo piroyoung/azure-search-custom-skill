@@ -14,15 +14,15 @@ func NewWordCountSkill(stopWords []string) *WordCountSkill {
 	return &WordCountSkill{stopWords: stopWords}
 }
 
-func (w WordCountSkill) Apply(body Body[map[string]string]) Body[map[string]map[string]int] {
-	result := make([]Record[map[string]map[string]int], len(body.Values))
+func (w WordCountSkill) Apply(body Body[string]) Body[map[string]int] {
+	result := make([]Record[map[string]int], len(body.Values))
 	for i, record := range body.Values {
-		result[i] = Record[map[string]map[string]int]{
+		result[i] = Record[map[string]int]{
 			RecordID: record.RecordID,
 			Data:     w.countWords(record.Data),
 		}
 	}
-	return Body[map[string]map[string]int]{Values: result}
+	return Body[map[string]int]{Values: result}
 }
 
 func (w WordCountSkill) countWords(data map[string]string) map[string]map[string]int {
