@@ -10,9 +10,9 @@ func NewMessage(value string) Message {
 
 type Record[T any] struct {
 	RecordID string       `json:"recordId"`
-	Data     map[string]T `json:"data"`
-	Errors   []Message    `json:"errors"`
-	Warnings []Message    `json:"warnings"`
+	Data     map[string]T `json:"data,omitempty"`
+	Errors   []Message    `json:"errors,omitempty"`
+	Warnings []Message    `json:"warnings,omitempty"`
 }
 
 type Body[T any] struct {
