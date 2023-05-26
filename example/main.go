@@ -2,9 +2,8 @@ package main
 
 import (
 	"github.com/piroyoung/azure-search-custom-skill/service"
-	"strings"
-
 	"github.com/piroyoung/azure-search-custom-skill/skill"
+	"strings"
 )
 
 func main() {
