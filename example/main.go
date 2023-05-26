@@ -8,12 +8,12 @@ import (
 )
 
 func main() {
-	lowerSkill := skill.NewSkillNoErr(strings.ToLower)
-	upperSkill := skill.NewSkillNoErr(strings.ToUpper)
-	splitSkill := skill.NewSkillNoErr(func(s string) []string {
+	lowerSkill := skill.NewSkillNoErr("content", "lowerContent", strings.ToLower)
+	upperSkill := skill.NewSkillNoErr("content", "upperContent", strings.ToUpper)
+	splitSkill := skill.NewSkillNoErr("content", "splitContent", func(s string) []string {
 		return strings.Split(s, " ")
 	})
-	wordCountSkill := skill.NewSkillNoErr(func(s string) map[string]int {
+	wordCountSkill := skill.NewSkillNoErr("content", "wordCount", func(s string) map[string]int {
 		result := make(map[string]int)
 		for _, word := range strings.Split(s, " ") {
 			result[word]++
