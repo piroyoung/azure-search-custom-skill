@@ -6,21 +6,31 @@ import (
 )
 
 var (
-	ErrParse = errors.New("parse error")
+	ErrParse              = errors.New("parse error")
+	ErrInputFieldNotFound = errors.New("input field not found")
 )
 
 type Skill[S, T any] struct {
-	mutation func(S) (T, error)
+	inputFieldName  string
+	outputFieldName string
+	mutation        func(S) (T, error)
 }
 
-func NewSkill[S, T any](mutation func(S) (T, error)) *Skill[S, T] {
-	return &Skill[S, T]{mutation: mutation}
+func NewSkill[S, T any](input string, output string, mutation func(S) (T, error)) *Skill[S, T] {
+	return &Skill[S, T]{
+		inputFieldName:  input,
+		outputFieldName: output,
+		mutation:        mutation,
+	}
 }
 
-func NewSkillNoErr[S, T any](mutation func(S) T) *Skill[S, T] {
-	return &Skill[S, T]{mutation: func(s S) (T, error) {
-		return mutation(s), nil
-	}}
+func NewSkillNoErr[S, T any](input string, output string, mutation func(S) T) *Skill[S, T] {
+	return &Skill[S, T]{
+		inputFieldName:  input,
+		outputFieldName: output,
+		mutation: func(s S) (T, error) {
+			return mutation(s), nil
+		}}
 }
 
 func (s *Skill[S, T]) Apply(body Body[S]) Body[T] {
@@ -28,13 +38,16 @@ func (s *Skill[S, T]) Apply(body Body[S]) Body[T] {
 	for i, record := range body.Values {
 		result[i].RecordID = record.RecordID
 		result[i].Data = make(map[string]T)
-		for k, v := range record.Data {
-			value, err := s.mutation(v)
-			if err != nil {
-				result[i].Errors = append(result[i].Errors, NewMessage(err.Error()))
-			} else {
-				result[i].Data[k] = value
-			}
+		v, ok := record.Data[s.inputFieldName]
+		if !ok {
+			result[i].Errors = append(result[i].Errors, NewMessage(ErrInputFieldNotFound.Error()))
+			continue
+		}
+		value, err := s.mutation(v)
+		if err != nil {
+			result[i].Errors = append(result[i].Errors, NewMessage(err.Error()))
+		} else {
+			result[i].Data[s.outputFieldName] = value
 		}
 	}
 	return Body[T]{Values: result}
